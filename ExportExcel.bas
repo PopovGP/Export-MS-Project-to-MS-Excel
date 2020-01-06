@@ -1,5 +1,52 @@
 Attribute VB_Name = "ExportExcel"
 Dim myDepth As Integer
+Enum XlLineStyle
+     xlContinuous = 1      'Continuous line.
+     xlDash = -4115   'Dashed line.
+     xlDashDot = 4    'Alternating dashes and dots.
+     xlDashDotDot = 5     'Dash followed by two dots.
+     xlDot = -4118    'Dotted line.
+     xlDouble = -4119     'Double line.
+     xlLineStyleNone = -4142  'No line.
+     xlSlantDashDot = 13  'Slanted dashes.
+ End Enum
+ 
+Enum XlBordersIndex
+    xlDiagonalDown = 5  ' Border running from the upper-left corner to the lower-right of each cell in the range.
+    xlDiagonalUp = 6   ' Border running from the lower-left corner to the upper-right of each cell in the range.
+    xlEdgeBottom = 9   ' Border at the bottom of the range.
+    xlEdgeLeft = 7   'Border at the left edge of the range.
+    xlEdgeRight = 10 ' Border at the right edge of the range.
+    xlEdgeTop = 8   ' Border at the top of the range.
+    xlInsideHorizontal = 12  'Horizontal borders for all cells in the range except borders on the outside of the range.
+    xlInsideVertical = 11    'Vertical borders for all the cells in the range except borders on the outside of the range.
+End Enum
+
+Enum XlHAlign
+    xlHAlignCenter = -4108   'Center.
+    xlHAlignCenterAcrossSelection = 7    'Center across selection.
+    xlHAlignDistributed = -4117  'Distribute.
+    xlHAlignFill = 5     'Fill.
+    xlHAlignGeneral = 1  'Align according to data type.
+    xlHAlignJustify = -4130  'Justify.
+    xlHAlignLeft = -4131     'Left.
+    xlHAlignRight = -4152   ' Right.
+End Enum
+
+Enum XlVAlign
+    xlVAlignBottom = -4107   'Bottom
+    xlVAlignCenter = -4108   'Center
+    xlVAlignDistributed = -4117  'Distributed
+    xlVAlignJustify = -4130  'Justify
+    xlVAlignTop = -4160  'Top
+End Enum
+
+Enum XlBorderWeight
+    xlHairline = 1   'Hairline (thinnest border).
+    xlMedium = -4138    'Medium.
+    xlThick = 4  'Thick (widest border).
+    xlThin = 2   'Thin.
+End Enum
 
 'for grouping
 Sub myTree(myTask As Task)
@@ -61,7 +108,7 @@ Sub myBorders(mySelection As Variant, myLineStyle As Long, myWeight As Long)
     End With
 End Sub
     
-Sub myFormat(myApp As Variant, mySheet As Variant, myRange As Range, myEndRange As Range, myBold As Boolean, mySize As Integer, myColor As Long)
+Sub myFormat(myApp As Variant, mySheet As Variant, myRange As Object, myEndRange As Object, myBold As Boolean, mySize As Integer, myColor As Long)
     
     myRange.Font.Name = "Times New Roman"
     myRange.Font.Bold = myBold
@@ -69,8 +116,8 @@ Sub myFormat(myApp As Variant, mySheet As Variant, myRange As Range, myEndRange 
     myRange.Interior.Color = myColor
     mySheet.Range(myRange, myEndRange).Select
     With myApp.Selection
-        .HorizontalAlignment = xlCenter
-        .VerticalAlignment = xlCenter
+        .HorizontalAlignment = XlHAlign.xlHAlignCenter
+        .VerticalAlignment = XlVAlign.xlVAlignCenter
         .WrapText = True
         .Orientation = 0
         .AddIndent = False
@@ -82,37 +129,37 @@ Sub myFormat(myApp As Variant, mySheet As Variant, myRange As Range, myEndRange 
     
 End Sub
     
-Sub myMainFormat(myRange As Range, myBold As Boolean)
+Sub myMainFormat(myRange As Object, myBold As Boolean)
     myRange.Font.Name = "Times New Roman"
     myRange.Font.Bold = myBold
 End Sub
     
-Sub GanttFormat(myApp As Variant, mySheet As Variant, myCellStart As Range, myCellEnd As Range, myColor As Variant)
+Sub GanttFormat(myApp As Variant, mySheet As Variant, myCellStart As Object, myCellEnd As Object, myColor As Variant)
 
     mySheet.Range(myCellStart, myCellEnd).Select
     With myApp.Selection.Borders(xlEdgeLeft)
         .LineStyle = xlDash
         .ColorIndex = xlAutomatic
         .TintAndShade = 0
-        .Weight = xlThin
+        .Weight = XlBorderWeight.xlThin
     End With
     With myApp.Selection.Borders(xlEdgeTop)
         .LineStyle = xlDash
         .ColorIndex = xlAutomatic
         .TintAndShade = 0
-        .Weight = xlThin
+        .Weight = XlBorderWeight.xlThin
     End With
     With myApp.Selection.Borders(xlEdgeBottom)
         .LineStyle = xlDash
         .ColorIndex = xlAutomatic
         .TintAndShade = 0
-        .Weight = xlThin
+        .Weight = XlBorderWeight.xlThin
     End With
     With myApp.Selection.Borders(xlEdgeRight)
         .LineStyle = xlDash
         .ColorIndex = xlAutomatic
         .TintAndShade = 0
-        .Weight = xlThin
+        .Weight = XlBorderWeight.xlThin
     End With
     
     
@@ -129,9 +176,19 @@ Function AutoIndent(Level As Integer) As String
 End Function
       
 Sub ExportExcel()
+
+
+    If ActiveProject.Tasks.Count = 0 Then
+        MsgBox "Your project is emty!"
+        Exit Sub
+    End If
+    
     Dim currentLine As Integer
     
     Dim myTask As Task
+    
+ 
+
     
 'late binding
 ' Dim Excel As Object
@@ -142,12 +199,15 @@ Sub ExportExcel()
 'Excel.Visible = True
 'Excel.Close
     
-    Dim excelapp As Excel.Application
-    Dim workbook As Excel.workbook
-    Dim sheet As Excel.Worksheet
+    'using late binding
+    Dim excelapp As Object  'for early binding: Dim excelapp As Excel.Application
+    Dim workbook  As Object 'for early binding: Dim workbook As Excel.workbook
+    Dim mySheet As Object     'for early binding: Dim mySheet As Excel.Worksheet
+    
+    
     Dim myBold As Boolean
     
-    Set excelapp = New Excel.Application
+    Set excelapp = CreateObject("Excel.Application") 'for early binding: New Excel.Application
     excelapp.ScreenUpdating = False
     Set workbook = excelapp.Workbooks.Add()
     Set mySheet = workbook.Worksheets(1)
@@ -220,8 +280,8 @@ Sub ExportExcel()
             
             mySheet.Range(mySheet.Cells(2, 8 + myGanttMonthCount), mySheet.Cells(2, 8 + i - 1)).Select
             With excelapp.Selection
-                .HorizontalAlignment = xlLeft
-                .VerticalAlignment = xlCenter
+                .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                .VerticalAlignment = XlVAlign.xlVAlignCenter
                 .WrapText = False
                 .Orientation = 0
                 .AddIndent = False
@@ -232,7 +292,7 @@ Sub ExportExcel()
                 .Value = Format(myDate - 1, "mmmm yyyy")
                 .Font.Name = "Times New Roman"
             End With
-            Call myBorders(excelapp.Selection, xlContinuous, xlThin)
+            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
             
             
             startMonth = Month(myDate)
@@ -245,8 +305,8 @@ Sub ExportExcel()
             
             mySheet.Range(mySheet.Cells(1, 8 + myGanttYearCount), mySheet.Cells(1, 8 + i - 1)).Select
             With excelapp.Selection
-                .HorizontalAlignment = xlLeft
-                .VerticalAlignment = xlCenter
+                .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                .VerticalAlignment = XlVAlign.xlVAlignCenter
                 .WrapText = False
                 .Orientation = 0
                 .AddIndent = False
@@ -257,7 +317,7 @@ Sub ExportExcel()
                 .Value = Format(myDate - 1, "yyyy")
                 .Font.Name = "Times New Roman"
             End With
-            Call myBorders(excelapp.Selection, xlContinuous, xlThin)
+            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
                         
             startYear = Year(myDate)
             myGanttYearCount = i
@@ -268,8 +328,8 @@ Sub ExportExcel()
             
             mySheet.Range(mySheet.Cells(3, 8 + myGanttWeekCount), mySheet.Cells(3, 8 + i - 1)).Select
             With excelapp.Selection
-                .HorizontalAlignment = xlLeft
-                .VerticalAlignment = xlCenter
+                .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                .VerticalAlignment = XlVAlign.xlVAlignCenter
                 .WrapText = False
                 .Orientation = 0
                 .AddIndent = False
@@ -292,7 +352,7 @@ Sub ExportExcel()
                 .Font.Name = "Times New Roman"
                 .Font.Size = 8
             End With
-            Call myBorders(excelapp.Selection, xlContinuous, xlThin)
+            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
             
             
             startWeek = DatePart("ww", myDate)
@@ -309,8 +369,8 @@ Sub ExportExcel()
         mySheet.Cells(4, 8 + i).Value = Left(WeekdayName(Weekday(myDate, vbUseSystemDayOfWeek), True, vbUseSystemDayOfWeek), 1) 'was myDate
         mySheet.Cells(4, 8 + i).Select
         With excelapp.Selection
-            .HorizontalAlignment = xlCenter
-            .VerticalAlignment = xlCenter
+            .HorizontalAlignment = XlHAlign.xlHAlignCenter
+            .VerticalAlignment = XlVAlign.xlVAlignCenter
             .WrapText = False
             .Orientation = 0
             .AddIndent = False
@@ -334,8 +394,8 @@ Sub ExportExcel()
         If Not myGanttMonthCount = myLasti + 1 Then
             mySheet.Range(mySheet.Cells(2, 8 + myGanttMonthCount), mySheet.Cells(2, 8 + myLasti)).Select
             With excelapp.Selection
-                .HorizontalAlignment = xlLeft
-                .VerticalAlignment = xlCenter
+                .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                .VerticalAlignment = XlVAlign.xlVAlignCenter
                 .WrapText = False
                 .Orientation = 0
                 .AddIndent = False
@@ -346,15 +406,15 @@ Sub ExportExcel()
                 .Value = Format(myLastDate, "mmmm yyyy")
                 .Font.Name = "Times New Roman"
             End With
-            Call myBorders(excelapp.Selection, xlContinuous, xlThin)
+            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
         End If
             
 'close year
         If Not myGanttYearCount = myLasti + 1 Then
             mySheet.Range(mySheet.Cells(1, 8 + myGanttYearCount), mySheet.Cells(1, 8 + myLasti)).Select
             With excelapp.Selection
-                .HorizontalAlignment = xlLeft
-                .VerticalAlignment = xlCenter
+                .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                .VerticalAlignment = XlVAlign.xlVAlignCenter
                 .WrapText = False
                 .Orientation = 0
                 .AddIndent = False
@@ -365,15 +425,15 @@ Sub ExportExcel()
                 .Value = Format(myLastDate, "yyyy")
                 .Font.Name = "Times New Roman"
             End With
-            Call myBorders(excelapp.Selection, xlContinuous, xlThin)
+            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
         End If
             
 'close week
         If Not myGanttWeekCount = myLasti + 1 Then
             mySheet.Range(mySheet.Cells(3, 8 + myGanttWeekCount), mySheet.Cells(3, 8 + myLasti)).Select
             With excelapp.Selection
-                .HorizontalAlignment = xlLeft
-                .VerticalAlignment = xlCenter
+                .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                .VerticalAlignment = XlVAlign.xlVAlignCenter
                 .WrapText = False
                 .Orientation = 0
                 .AddIndent = False
@@ -386,7 +446,7 @@ Sub ExportExcel()
                 .Font.Name = "Times New Roman"
                 .Font.Size = 8
             End With
-            Call myBorders(excelapp.Selection, xlContinuous, xlThin)
+            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
         End If
             
 'end close
@@ -449,8 +509,8 @@ Sub ExportExcel()
                 If myTask.Milestone Then
                     
                     mySheet.Cells(currentLine, 8 + dateOffset + 1).Value = ChrW(&H25CA)
-                    mySheet.Cells(currentLine, 8 + dateOffset + 1).HorizontalAlignment = xlCenter
-                    mySheet.Cells(currentLine, 8 + dateOffset + 1).VerticalAlignment = xlCenter
+                    mySheet.Cells(currentLine, 8 + dateOffset + 1).HorizontalAlignment = XlHAlign.xlHAlignCenter
+                    mySheet.Cells(currentLine, 8 + dateOffset + 1).VerticalAlignment = XlVAlign.xlVAlignCenter
                     
                 Else
                     If myTask.OutlineLevel = 1 Then
@@ -612,7 +672,3 @@ Next myTask
     
 End Function
 
-Sub Install()
-    Application.Windows.
-End Sub
-End Sub
