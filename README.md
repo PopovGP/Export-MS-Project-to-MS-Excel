@@ -1,32 +1,54 @@
 # Export-MS-Project-to-MS-Excel
 MS Visual Basic module to export tasks and Gantt chart from MS Project to MS Excel
 
-__Russia / Русский:__
+- Universall usefull procedure to export MS Project to MS Excel.
 
-- Универсальная удобная процедура экспорта данных проекта MS Project в MS Excel.
+- Produces nice MS Excel file with colorful Gantt chart.
 
-- На выходе получается очень красивый файл MS Excel вместе с диаграммой Гантта.
-
-Выгружаются:
+Exports:
 
 1. №
-2. Код СДР
-3. Название задачи
-4. Дата начала
-5. Дата окончания
-6. Длительность задачи
-7. Названия ресурсов
-8. Предшественники
+2. Unique task ID
+3. Task name
+4. Task start date
+5. Task end datae
+6. Duration
+7. Resource names
+8. Task predecessors
 
-- Автоматические делаются отступы и группировки.
+- Automatically indents subtasks and do grouping.
 
-- В правой части листа формируется диаграмма Гантта.
+- Gantt chart forming in right site of the sheet.
 
 
 
-_Особенности:_
+_Features:_
 
-1. Сделан для MS Project 2019 Professional.
-2. Нашли ошибки - напишите мне или сделайте свою ветку и поправьте.
-3. Если хотите использовать модуль - также напишите мне.
-4. Модуль универсальный для всех языков.
+1. Created for MS Project 2019 Professional.
+2. If errors found - please write me or do your branch and correct.
+3. Want to use this module? Write me.
+4. This is universal procedure for all languages of MS Project.
+
+
+_Install:_
+
+Case 1. Use 'ExportExcel.bas'
+
+1. Launch MS Project
+2. On the __View__ tab, click __Macros__, and then click __Visual Basic__
+3. In __ProjectGlobal__ right-click in __Modules__
+4. Click __'Import file'__ and choose __'ExportExcel.bas'__
+5. 'ExportExcel' module should appear in modules
+
+Case 2. Use 'Empty_MS_Project_with_macros.mpp'
+
+1. Open __'Empty_MS_Project_with_macros.mpp'__
+2. Allow Visual Basic macros when asked
+3. Add tasks and work in MS Project as usual
+
+_Using:_
+1. Launch MS Project
+2. Open project file
+3. On the __View__ tab, click __Macros__
+4. Choose __'ExportExcel'__
+5. Click __'Run'__
