@@ -53,4 +53,5 @@ _Using:_
 4. Choose __'ExportExcel'__
 5. Click __'Run'__
 
-P.S. No warranty whatsoever
+
+This module is provided 'as-is' and comes with no warranty.
