@@ -52,3 +52,5 @@ _Using:_
 3. On the __View__ tab, click __Macros__
 4. Choose __'ExportExcel'__
 5. Click __'Run'__
+
+P.S. No warranty whatsoever
