@@ -50,10 +50,11 @@ MS Visual Basic module to export tasks and Gantt chart from MS Project to MS Exc
   5. Click __'Run'__
 
 **_Example:_**
+
   _Project file:_
     ![Project screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/Initial_project_example.png)
      
-  _Excel-file_
+  _Excel file:_
     ![Excel screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/Result_excel_example.png)
 
 This module is provided 'as-is' and comes with no warranty.
