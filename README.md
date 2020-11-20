@@ -30,17 +30,18 @@ MS Visual Basic module to export tasks and Gantt chart from MS Project to MS Exc
 
 
 **_Install:_**
-  **Case 1. Use 'ExportExcel.bas'**
-    1. Launch MS Project
-    2. On the __View__ tab, click __Macros__, and then click __Visual Basic__
-    3. In __ProjectGlobal__ right-click in __Modules__
-    4. Click __'Import file'__ and choose __'ExportExcel.bas'__
-    5. 'ExportExcel' module should appear in modules
 
-  **Case 2. Use 'Empty_MS_Project_with_macros.mpp'**
-    1. Open __'Empty_MS_Project_with_macros.mpp'__
-    2. Allow Visual Basic macros when asked
-    3. Add tasks and work in MS Project as usual
+Case 1. Use "ExportExcel.bas"
+  1. Launch MS Project
+  2. On the __View__ tab, click __Macros__, and then click __Visual Basic__
+  3. In __ProjectGlobal__ right-click in __Modules__
+  4. Click __'Import file'__ and choose __'ExportExcel.bas'__
+  5. 'ExportExcel' module should appear in modules
+
+Case 2. Use 'Empty_MS_Project_with_macros.mpp'
+  1. Open __'Empty_MS_Project_with_macros.mpp'__
+  2. Allow Visual Basic macros when asked
+  3. Add tasks and work in MS Project as usual
 
 **_Using:_**
   1. Launch MS Project
