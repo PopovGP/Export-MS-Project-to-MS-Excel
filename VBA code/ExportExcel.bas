@@ -225,14 +225,14 @@ Sub ExportExcel()
         .SummaryColumn = xlRight
     End With
  
-    mySheet.Cells(1, 1).Value = "№"
-    mySheet.Cells(1, 2).Value = Application.FieldConstantToFieldName(PjField.pjTaskUniqueID) '"Код СДР"
-    mySheet.Cells(1, 3).Value = Application.FieldConstantToFieldName(PjField.pjTaskName) '"Название задачи"
-    mySheet.Cells(1, 4).Value = Application.FieldConstantToFieldName(PjField.pjTaskStartText) '"Начало"
-    mySheet.Cells(1, 5).Value = Application.FieldConstantToFieldName(PjField.pjTaskFinish)  '"Окончание"
-    mySheet.Cells(1, 6).Value = Application.FieldConstantToFieldName(PjField.pjTaskDurationText) '"Длительность"
-    mySheet.Cells(1, 7).Value = Application.FieldConstantToFieldName(PjField.pjTaskResourceNames) '"Названия ресурсов"
-    mySheet.Cells(1, 8).Value = Application.FieldConstantToFieldName(PjField.pjTaskPredecessors)  '"Предшественники"
+    mySheet.Cells(1, 1).Value = "В№"
+    mySheet.Cells(1, 2).Value = Application.FieldConstantToFieldName(PjField.pjTaskUniqueID) '"ГЉГ®Г¤ Г‘Г„Гђ"
+    mySheet.Cells(1, 3).Value = Application.FieldConstantToFieldName(PjField.pjTaskName) '"ГЌГ Г§ГўГ Г­ГЁГҐ Г§Г Г¤Г Г·ГЁ"
+    mySheet.Cells(1, 4).Value = Application.FieldConstantToFieldName(PjField.pjTaskStartText) '"ГЌГ Г·Г Г«Г®"
+    mySheet.Cells(1, 5).Value = Application.FieldConstantToFieldName(PjField.pjTaskFinish)  '"ГЋГЄГ®Г­Г·Г Г­ГЁГҐ"
+    mySheet.Cells(1, 6).Value = Application.FieldConstantToFieldName(PjField.pjTaskDurationText) '"Г„Г«ГЁГІГҐГ«ГјГ­Г®Г±ГІГј"
+    mySheet.Cells(1, 7).Value = Application.FieldConstantToFieldName(PjField.pjTaskResourceNames) '"ГЌГ Г§ГўГ Г­ГЁГї Г°ГҐГ±ГіГ°Г±Г®Гў"
+    mySheet.Cells(1, 8).Value = Application.FieldConstantToFieldName(PjField.pjTaskPredecessors)  '"ГЏГ°ГҐГ¤ГёГҐГ±ГІГўГҐГ­Г­ГЁГЄГЁ"
     
 
     Call myFormat(excelapp, mySheet, mySheet.Cells(1, 1), mySheet.Cells(4, 1), True, 11, RGB(223, 227, 232))
