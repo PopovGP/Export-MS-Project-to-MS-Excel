@@ -1,1 +1,1 @@
-This folder contain samples and images to help to understand how this module works.
+This folder contain samples and images explaining how this module works.
