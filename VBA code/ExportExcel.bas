@@ -179,7 +179,7 @@ Sub ExportExcel()
 
 
     If ActiveProject.Tasks.Count = 0 Then
-        MsgBox "Your project is emty!"
+        MsgBox "Your project is empty!"
         Exit Sub
     End If
     
@@ -200,9 +200,9 @@ Sub ExportExcel()
 'Excel.Close
     
     'using late binding
-    Dim excelapp As Object  'for early binding: Dim excelapp As Excel.Application
-    Dim workbook  As Object 'for early binding: Dim workbook As Excel.workbook
-    Dim mySheet As Object     'for early binding: Dim mySheet As Excel.Worksheet
+    Dim excelapp As Object      'for early binding: Dim excelapp As Excel.Application
+    Dim workbook  As Object     'for early binding: Dim workbook As Excel.workbook
+    Dim mySheet As Object       'for early binding: Dim mySheet As Excel.Worksheet
     
     
     Dim myBold As Boolean
@@ -212,6 +212,7 @@ Sub ExportExcel()
     excelapp.ScreenUpdating = False
     Set workbook = excelapp.Workbooks.Add()
     Set mySheet = workbook.Worksheets(1)
+    mySheet.Name = "Gantt"
     ganttColumn = 9         ' <= tune this number if you want to load more columns from ms project. It is an offest column from wich Gantt chart starts
     
 'for gantt chart
@@ -604,8 +605,74 @@ Sub ExportExcel()
     For i = ganttColumn + 1 To numberOfDays + ganttColumn + 1
         mySheet.Columns(i).ColumnWidth = 1
     Next i
+    
+    'Resources' export section         =====================================================================================================================
+    'Dim mySheet As Object       'for early binding: Dim mySheet As Excel.Worksheet
+    
+    Dim myResourceFields As New Collection
+   
+    
+    myResourceFields.Add Item:=PjField.pjResourceID
+    myResourceFields.Add (PjField.pjResourceCode)
+    myResourceFields.Add (PjField.pjResourceName)
+    myResourceFields.Add (PjField.pjResourceInitials)
+    myResourceFields.Add (PjField.pjResourceGroup)
+    myResourceFields.Add (PjField.pjResourceBaseCalendar)
+    myResourceFields.Add (PjField.pjResourceBookingType)
+    myResourceFields.Add (PjField.pjResourceEMailAddress)
+    myResourceFields.Add (PjField.pjResourceStandardRate)
+    myResourceFields.Add (PjField.pjResourceOvertimeRate)
+    myResourceFields.Add (PjField.pjResourcePeakUnits)
+    myResourceFields.Add (PjField.pjResourceType)
+    myResourceFields.Add (PjField.pjResourceCost)
+    myResourceFields.Add (PjField.pjResourceCostPerUse)
+    myResourceFields.Add (PjField.pjResourceOvertimeCost)
+    myResourceFields.Add (PjField.pjResourceNotes)
+    
+    
+    
+    Dim myResourceSheet As Object
+    Set myResourceSheet = workbook.Worksheets.Add(, mySheet)
+    myResourceSheet.Name = "Resources"
+    
+        
+    'Begin making table header{
+    myCounter = 1
+                
+    For Each myField In myResourceFields
+        myResourceSheet.Cells(1, myCounter).Value = Application.FieldConstantToFieldName(myField)
+        
+        Call myFormat(excelapp, myResourceSheet, myResourceSheet.Cells(1, myCounter), myResourceSheet.Cells(4, myCounter), True, 11, RGB(223, 227, 232))
+                
+        myCounter = myCounter + 1
+    Next myField
+    '}end making table header
+
+    '{begin make table data
+    currentLine = 5         ' beginning data
+                
+    For Each myResource In ActiveProject.Resources
+        If Not myResource Is Nothing Then
+    
+            myCounter = 1
+                      
+            For Each myField In myResourceFields
+                myResourceSheet.Cells(currentLine, myCounter).Value = myResource.GetField(myField)
+                        
+                myCounter = myCounter + 1
+            Next myField
+        
+         
+            currentLine = currentLine + 1
+            
+        End If
+    Next myResource
+    '}end making table date
+    
                                  
-   excelapp.ScreenUpdating = True
+    'end of resources export section   =====================================================================================================================
+    
+    excelapp.ScreenUpdating = True
                                
 End Sub
                             
