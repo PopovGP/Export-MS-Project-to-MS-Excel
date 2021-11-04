@@ -32,15 +32,46 @@ Instant use. No setup required. 100% MS Project VBA.
   8. Task predecessors
   9. % complete
 
-**_Export resources_**
+**_Exports those resource list fields:_**
+  1. №
+  2. ID
+  3. Code
+  4. Name
+  5. Initials
+  6. Group
+  7. Base
+  8. Calendar
+  9. Booking Type
+  10. Email
+  11. Address
+  12. Standard Rate
+  13. Overtime Rate
+  14. Peak
+  15. Max Units
+  16. Type
+  17. Cost
+  18. Cost Per Use
+  19. Overtime Cost
 
-**_Example:_**
+**_Examples:_**
 
-  _Project file:_
+  _1.1. Project file:_
     ![Project screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/Initial_project_example.png)
      
-  _Excel file:_
+  _1.2. Excel file:_
     ![Excel screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/Result_excel_example.png)
+
+  _2.1. Project file:_
+    ![Project screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/Initial_resourcesheet_example.png)
+     
+  _2.2. Excel file:_
+    ![Excel screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/Export_resourcesheet_example.png)
+
+  _3.1. Project file:_
+    ![Project screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/Initial_calendar_example.png)
+     
+  _3.2. Excel file:_
+    ![Excel screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/Export_calendar_example.png)
 
 **_Notes:_**
   1. Created for MS Project 2019 Professional.
