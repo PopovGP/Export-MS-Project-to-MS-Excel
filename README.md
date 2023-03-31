@@ -76,7 +76,7 @@ Instant use. No setup required. 100% MS Project VBA.
 **_Notes:_**
   1. Created for MS Project 2019 Professional.
   2. If errors found - please write me or do your branch and correct.
-  3. Support all languages.
+  3. Supports all languages.
   4. Dates are formatted using system locale settings.
 
 
