@@ -15,7 +15,7 @@ Instant use. No setup required. 100% MS Project VBA.
 **_Using:_**
   1. Download and open __'Empty_MS_Project_with_macros.mpp'__
   2. Allow Visual Basic macros when asked
-  3. Open project file you want to import
+  3. Open project file you want to export
   4. While in your project file, choose the __View__ tab, click __Macros__
   4. Choose __'ExportExcel'__
   5. Click __'Run'__
