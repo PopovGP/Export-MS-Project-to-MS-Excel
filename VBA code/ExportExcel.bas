@@ -1,5 +1,5 @@
 Attribute VB_Name = "ExportExcel"
-
+'For the future: Option Explicit
 
 Dim myDepth As Integer
 Enum XlLineStyle
@@ -70,6 +70,7 @@ Sub myTree(myTask As Task)
         End With
     End If
 End Sub
+
 
 Function myD(D As Variant)
     myD = DateSerial(Year(D), Month(D), Day(D))
@@ -236,6 +237,8 @@ Sub ExportExcel()
     Dim myStartDate As Date
     Dim myEndDate As Date
     Dim numberOfDays As Long
+    Dim myArr() As Date
+    
     
     myArr = StartAndEnd()
     myStartDate = myArr(0)
@@ -282,7 +285,25 @@ Sub ExportExcel()
     
     
 'Gantt title =======================
-'number of active tasks
+    Dim myActiveTaskCount As Long
+    Dim myDate As Date
+    Dim myLastDate As Date
+    Dim myGanttMonthCount As Long
+    Dim myGanttYearCount As Long
+    Dim myGanttWeekCount As Long
+    Dim myLasti As Long
+    Dim startMonth, startYear, startWeek As Integer
+    Dim i As Long
+    Dim FirstDayInWeek As Date
+    Dim isWorkingDay As Boolean
+    
+    
+    
+    
+    
+    
+    
+'get number of active tasks
     myActiveTaskCount = 0
     For Each myTask In ActiveProject.Tasks
         If Not myTask Is Nothing Then
@@ -578,7 +599,7 @@ Sub ExportExcel()
                     
                     currentLine = currentLine + 1
                     
-                    If .OutlineLevel < 8 Then 'levels more than 9 are treated as usual due to MS Excel limitations
+                    If .OutlineLevel < 8 Then 'levels more than 9 are treated as usual lines due to MS Excel limitations
                         
                         If .OutlineChildren.Count > 0 Then 'we need to group
                             
@@ -606,14 +627,14 @@ Sub ExportExcel()
     Next myTask
     'end grouping =============================================================================================
                        
-     '{begin do some formatting in columns where Gantt is located on a sheet ======================================
-     For i = 1 To ganttColumn
-         mySheet.Columns(i).AutoFit
-         If mySheet.Columns(i).ColumnWidth > 100 Then 'if column is too wide and more than 100 points, set its width to 100 points.
-             mySheet.Columns(i).ColumnWidth = 100
-         End If
+    '{begin do some formatting in columns where Gantt is located on a sheet ======================================
+    For i = 1 To ganttColumn
+        mySheet.Columns(i).AutoFit
+        If mySheet.Columns(i).ColumnWidth > 100 Then 'if column is too wide and more than 100 points, set it's width to 100 points.
+            mySheet.Columns(i).ColumnWidth = 100
+        End If
     
-     Next i
+    Next i
                             
     'Set to minimum width all columns where Gantt lines are
     For i = ganttColumn + 1 To numberOfDays + ganttColumn + 1
@@ -621,11 +642,375 @@ Sub ExportExcel()
     Next i
     '}end formatting Gantt columns ==================================================================================
     
+    Call myResourceExport(excelapp, workbook, mySheet)
+    
+    Call myCalendarsExport(excelapp, workbook, mySheet)
+    
+    
+    Set mySheet = Nothing
+    
+    workbook.worksheets(1).Activate
+    excelapp.ScreenUpdating = True
+    
+                               
+End Sub
+                            
+Sub ExportExcel_Monthly()
+
+
+    If ActiveProject.Tasks.Count = 0 Then
+        MsgBox "Your project is empty!"
+        Exit Sub
+    End If
+    
+    Dim currentLine As Integer
+    
+    Dim myTask As Task
+    
+ 
+
+    
+'late binding
+' Dim Excel As Object
+' Dim workbook As Object
+'
+'Set Excel = CreateObject("Excel.Application")
+'set workbook = excel.
+'Excel.Visible = True
+'Excel.Close
+    
+    'using late binding
+    Dim excelapp As Object      'for early binding: Dim excelapp As Excel.Application
+    Dim workbook  As Object     'for early binding: Dim workbook As Excel.workbook
+    Dim mySheet As Object       'for early binding: Dim mySheet As Excel.Worksheet
+    
+    
+    Dim myBold As Boolean
+    Dim ganttColumn As Integer 'Column where Gantt chart begins
+    
+    Set excelapp = CreateObject("Excel.Application") 'for early binding: New Excel.Application
+    excelapp.ScreenUpdating = False
+    Set workbook = excelapp.Workbooks.Add()
+    Set mySheet = workbook.worksheets(1)
+    mySheet.Name = "Gantt"
+    ganttColumn = 9         ' <= tune this number if you want to load more columns from ms project. It is an offest column from wich Gantt chart starts
+    
+'for gantt chart
+    'Dim myArr As Object
+    Dim myStartDate As Date
+    Dim myEndDate As Date
+    Dim numberOfDays As Long
+    Dim myArr() As Date
+    
+    
+    myArr = StartAndEnd()
+    myStartDate = myArr(0)
+    myEndDate = myArr(1)
+    numberOfDays = myEndDate - myStartDate
+    excelapp.Visible = True
+
+    With mySheet.Outline
+        .AutomaticStyles = False
+        .SummaryRow = xlAbove
+        .SummaryColumn = xlRight
+    End With
+    
+    
+    'headers for tasks table
+    mySheet.Cells(1, 1).Value = "¹"
+    mySheet.Cells(1, 2).Value = Application.FieldConstantToFieldName(PjField.pjTaskUniqueID) '"Unique ID"
+    mySheet.Cells(1, 3).Value = Application.FieldConstantToFieldName(PjField.pjTaskName) '"Name"
+    mySheet.Cells(1, 4).Value = Application.FieldConstantToFieldName(PjField.pjTaskStartText) '"Start"
+    mySheet.Cells(1, 5).Value = Application.FieldConstantToFieldName(PjField.pjTaskFinish)  '"Finish"
+    mySheet.Cells(1, 6).Value = Application.FieldConstantToFieldName(PjField.pjTaskDurationText) '"Duration"
+    mySheet.Cells(1, 7).Value = Application.FieldConstantToFieldName(PjField.pjTaskResourceNames) '"Resource names"
+    mySheet.Cells(1, 8).Value = Application.FieldConstantToFieldName(PjField.pjTaskPredecessors)  '"Predecessors"
+    mySheet.Cells(1, 9).Value = Application.FieldConstantToFieldName(PjField.pjTaskPercentComplete)  '"% complete"
+    
+
+    
+
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 1), mySheet.Cells(4, 1), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 2), mySheet.Cells(4, 2), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 3), mySheet.Cells(4, 3), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 4), mySheet.Cells(4, 4), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 5), mySheet.Cells(4, 5), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 6), mySheet.Cells(4, 6), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 7), mySheet.Cells(4, 7), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 8), mySheet.Cells(4, 8), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 9), mySheet.Cells(4, 9), True, 11, RGB(223, 227, 232))
+    
+'some usefull freezing
+    mySheet.Activate
+    excelapp.ActiveWindow.FreezePanes = False
+    mySheet.Cells(5, 4).Select
+    excelapp.ActiveWindow.FreezePanes = True
+    
+    
+'Gantt title =======================
+    Dim myActiveTaskCount As Long
+    Dim myDate As Date
+    Dim myLastDate As Date
+    Dim myGanttMonthCount As Long
+    'Dim myGanttYearCount As Long
+    'Dim myGanttWeekCount As Long
+    Dim myLasti As Long
+    Dim startMonth As Integer
+    Dim i As Long
+    Dim FirstDayInWeek As Date
+    Dim isWorkingDay As Boolean
+    
+    
+    
+    
+    
+    
+    
+    'get number of active tasks
+    myActiveTaskCount = 0
+    For Each myTask In ActiveProject.Tasks
+        If Not myTask Is Nothing Then
+            If myTask.Active Then
+                myActiveTaskCount = myActiveTaskCount + 1
+            End If
+        End If
+    Next myTask
+        
+        
+    myDate = myStartDate
+    startMonth = Month(myDate)
+    'startYear = Year(myDate)
+    'startWeek = DatePart("ww", myDate, vbUseSystemDayOfWeek)
+    
+    myGanttMonthCount = 1
+    'myGanttYearCount = 1
+    'myGanttWeekCount = 1
+    myLasti = 1
+    myLastDate = myDate
+        
+    For i = 1 To numberOfDays + 1
+        
+        If Not startMonth = Month(myDate) Then
+            
+            mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttMonthCount), mySheet.Cells(4, ganttColumn + myGanttMonthCount)).Select
+            With excelapp.Selection
+                .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                .VerticalAlignment = XlVAlign.xlVAlignCenter
+                .WrapText = False
+                .Orientation = 0
+                .AddIndent = False
+                .IndentLevel = 0
+                .ShrinkToFit = False
+                .ReadingOrder = xlContext
+                .MergeCells = True
+                .Value = Format(myDate - 1, "mmmm yyyy")
+                .Font.Name = "Times New Roman"
+            End With
+            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+            
+            
+            startMonth = Month(myDate)
+            myGanttMonthCount = myGanttMonthCount + 1
+            
+        End If
+        
+       
+        
+        
+        
+        myLasti = i
+        myLastDate = myDate
+        
+        myDate = myDate + 1
+ 
+        Next i
+'close month
+    '    If Not myGanttMonthCount = Month(myLastDate) Then
+            mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttMonthCount), mySheet.Cells(4, ganttColumn + myGanttMonthCount)).Select
+            With excelapp.Selection
+                .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                .VerticalAlignment = XlVAlign.xlVAlignCenter
+                .WrapText = False
+                .Orientation = 0
+                .AddIndent = False
+                .IndentLevel = 0
+                .ShrinkToFit = False
+                .ReadingOrder = xlContext
+                .MergeCells = True
+                .Value = Format(myLastDate, "mmmm yyyy")
+                .Font.Name = "Times New Roman"
+            End With
+            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+'        End If
+
+
+            
+'end close
+    
+    currentLine = 4
+    
+    For Each myTask In ActiveProject.Tasks
+        If Not myTask Is Nothing Then
+            
+            With myTask
+                If .Active Then
+                    
+                   
+                    currentLine = currentLine + 1
+    
+                    
+                    Set excelrange = mySheet.Cells(currentLine, 1)
+                    excelrange.Value = .ID 'myTask.UniqueID
+                    
+                    mySheet.Cells(currentLine, 2).Value = "'" + .OutlineNumber
+                    mySheet.Cells(currentLine, 3).Value = AutoIndent(.OutlineLevel) + .Name
+    
+                    mySheet.Cells(currentLine, 4).Value = .StartText
+   
+                    mySheet.Cells(currentLine, 5).Value = .FinishText
+                    
+                    mySheet.Cells(currentLine, 6).Value = .DurationText
+                    mySheet.Cells(currentLine, 7).Value = .ResourceNames
+                    mySheet.Cells(currentLine, 8).Value = .Predecessors
+                    mySheet.Cells(currentLine, 9).Value = .PercentComplete
+                    
+    
+                    
+                    
+                    myBold = False
+                    If .OutlineChildren.Count > 0 Then
+                        myBold = True
+                    End If
+                    
+                    Call myMainFormat(mySheet.Cells(currentLine, 1), myBold)
+                    Call myMainFormat(mySheet.Cells(currentLine, 2), myBold)
+                    Call myMainFormat(mySheet.Cells(currentLine, 3), myBold)
+                    Call myMainFormat(mySheet.Cells(currentLine, 4), myBold)
+                    Call myMainFormat(mySheet.Cells(currentLine, 5), myBold)
+                    Call myMainFormat(mySheet.Cells(currentLine, 6), myBold)
+                    Call myMainFormat(mySheet.Cells(currentLine, 7), myBold)
+                    Call myMainFormat(mySheet.Cells(currentLine, 8), myBold)
+                    Call myMainFormat(mySheet.Cells(currentLine, 9), myBold)
+                    
+    'start doing Gantt chart
+    '====================================================================
+    'tasks
+                    myColor = RGB(217, 225, 242)
+                    'datediff
+                    'DateDiff("m",  DateSerial(Year(myStartDate), Month(myStartDate), Day(1)), DateSerial(Year(.Start), Month(.Start), Day(1)))
+                     
+                    
+                    monthOffsetStart = MonthDiff(myStartDate, .Start)
+                    monthOffestEnd = MonthDiff(myStartDate, .Finish)
+                   ' myDuration = myD(.Finish) - myD(.Start) + 1
+                    
+                    If .Milestone Then
+                        
+                        mySheet.Cells(currentLine, ganttColumn + monthOffsetStart + 1).Value = ChrW(&H25CA)
+                        mySheet.Cells(currentLine, ganttColumn + monthOffsetStart + 1).HorizontalAlignment = XlHAlign.xlHAlignCenter
+                        mySheet.Cells(currentLine, ganttColumn + monthOffsetStart + 1).VerticalAlignment = XlVAlign.xlVAlignCenter
+                        
+                    Else
+                        If .OutlineLevel = 1 Then
+    '  myColor = RGB(48, 84, 150)
+    ' myColor = RGB(66, 96, 162)
+                            myColor = RGB(78, 121, 198)
+                        ElseIf .OutlineLevel = 2 Then
+                            myColor = RGB(142, 169, 219)
+                        ElseIf .OutlineLevel = 3 Then
+                            myColor = RGB(180, 198, 231)
+                        ElseIf .OutlineLevel = 4 Then
+                            myColor = RGB(217, 225, 242)
+                        Else
+                            myColor = RGB(217, 225, 242)
+                        End If
+     
+    'Dotted line
+                       
+                        Call GanttFormat(excelapp, mySheet, mySheet.Cells(currentLine, ganttColumn + monthOffsetStart + 1), mySheet.Cells(currentLine, ganttColumn + monthOffestEnd + 1), myColor)
+                    End If
+               
+    'end doing Gantt chart ==============================================
+                
+                Else
+                End If
+            End With
+        End If
+        
+    Next myTask 'loop through all tasks
+                
+    'Do some grouping =========================================================================================
+    currentLine = 4
+    For Each myTask In ActiveProject.Tasks
+        
+        If Not myTask Is Nothing Then
+            With myTask
+                If .Active Then
+                    
+                    currentLine = currentLine + 1
+                    
+                    If .OutlineLevel < 8 Then 'levels more than 9 are treated as usual lines due to MS Excel limitations
+                        
+                        If .OutlineChildren.Count > 0 Then 'we need to group
+                            
+                            myStartLine = currentLine
+                            myDepth = 0
+                            
+                            For myIdent = 1 To .OutlineChildren.Count
+                                Call myTree(.OutlineChildren(myIdent))
+                                Next myIdent
+                                
+                                myEndLine = myStartLine + myDepth
+                                
+                                If Not myStartLine = myEndLine Then
+                                    mySheet.Rows(Trim(Str(myStartLine + 1)) & ":" & Trim(Str(myEndLine))).Group
+                                    
+                                End If
+                                
+                            End If
+                        End If
+                        
+                        
+                    End If 'Maximum displayable outline count is reached or not reached
+            End With
+        End If
+    Next myTask
+    'end grouping =============================================================================================
+                       
+    '{begin do some formatting in columns where Gantt is located on a sheet ======================================
+    For i = 1 To ganttColumn
+        mySheet.Columns(i).AutoFit
+        If mySheet.Columns(i).ColumnWidth > 100 Then 'if column is too wide and more than 100 points, set it's width to 100 points.
+            mySheet.Columns(i).ColumnWidth = 100
+        End If
+    
+    Next i
+                            
+    'Set to minimum width all columns where Gantt lines are
+    For i = ganttColumn + 1 To numberOfDays + ganttColumn + 1
+        mySheet.Columns(i).AutoFit 'ColumnWidth = 1
+    Next i
+    '}end formatting Gantt columns ==================================================================================
+    
+    Call myResourceExport(excelapp, workbook, mySheet)
+    
+    Call myCalendarsExport(excelapp, workbook, mySheet)
+    
+    
+    Set mySheet = Nothing
+    
+    workbook.worksheets(1).Activate
+    excelapp.ScreenUpdating = True
+    
+                               
+End Sub
+                          
+'Export resources
+Sub myResourceExport(myExcelApp As Object, myWorkbook As Object, myWorksheet As Variant)
     'Resources' export section         =====================================================================================================================
     'Dim mySheet As Object       'for early binding: Dim mySheet As Excel.Worksheet
     
     Dim myResourceFields As New Collection
-    Dim myCalendars As New Collection   'for future use in Calendars
     
     myResourceFields.Add Item:=PjField.pjResourceID
     myResourceFields.Add (PjField.pjResourceCode)
@@ -646,7 +1031,7 @@ Sub ExportExcel()
     myResourceFields.Add (PjField.pjResourceNotes)
 
     Dim myResourceSheet As Object
-    Set myResourceSheet = workbook.worksheets.Add(, mySheet)
+    Set myResourceSheet = myWorkbook.worksheets.Add(, myWorksheet)
     myResourceSheet.Name = "Resources"
     
         
@@ -656,7 +1041,7 @@ Sub ExportExcel()
     For Each myField In myResourceFields
         myResourceSheet.Cells(1, myCounter).Value = Application.FieldConstantToFieldName(myField)
         
-        Call myFormat(excelapp, myResourceSheet, myResourceSheet.Cells(1, myCounter), myResourceSheet.Cells(4, myCounter), True, 11, RGB(223, 227, 232))
+        Call myFormat(myExcelApp, myResourceSheet, myResourceSheet.Cells(1, myCounter), myResourceSheet.Cells(4, myCounter), True, 11, RGB(223, 227, 232))
                 
         myCounter = myCounter + 1
     Next myField
@@ -692,12 +1077,16 @@ Sub ExportExcel()
 
    
     '}end of resources export section   =====================================================================================================================
-    
-    '{Begin calenders export section   =====================================================================================================================
+
+End Sub
+
+'Export calendars
+Sub myCalendarsExport(myExcelApp As Object, myWorkbook As Object, myWorksheet As Variant)
+  '{Begin calendars export section   =====================================================================================================================
     Dim myCalendarSheet As Object
     Dim myCalendar As Calendar
     
-    Set myCalendarSheet = workbook.worksheets.Add(, mySheet)
+    Set myCalendarSheet = myWorkbook.worksheets.Add(, myWorksheet)
     myCalendarSheet.Name = "Calendars"
     
     Set myCalendar = ActiveProject.Calendar
@@ -763,58 +1152,50 @@ Sub ExportExcel()
     Set myCalendarSheet = Nothing
     Set myCalendar = Nothing
     
-    '}End calenders export section   =====================================================================================================================
-    
-    Set mySheet = Nothing
-    
-    workbook.worksheets(1).Activate
-    excelapp.ScreenUpdating = True
-    
-                               
+    '}End calendars export section   =====================================================================================================================
+  
 End Sub
-                            
+
+
 'for gantt chart find minimum and maximum project's start and end dates
 Function StartAndEnd()
-
-
-
-
-Dim myStartDate As Date
-Dim myEndDate As Date
-Dim currentLine As Long
-
-currentLine = 1
-
-myStartDate = 0
-myEndDate = 0
-
-
-For Each myTask In ActiveProject.Tasks
-    If Not myTask Is Nothing Then
-       
-        
-        If myTask.Active Then
-
-            currentLine = currentLine + 1
+'for the future to try this: https://www.project-systems.co.nz/VBA-Sample-Code/VBASampleTimescaleScroll.html
+    Dim myStartDate As Date
+    Dim myEndDate As Date
+    Dim currentLine As Long
+    
+    currentLine = 1
+    
+    myStartDate = 0
+    myEndDate = 0
+    
+    
+    For Each myTask In ActiveProject.Tasks
+        If Not myTask Is Nothing Then
+           
             
-            
-            If myStartDate = 0 Then
-                myStartDate = myD(myTask.Start)
+            If myTask.Active Then
+    
+                currentLine = currentLine + 1
+                
+                
+                If myStartDate = 0 Then
+                    myStartDate = myD(myTask.Start)
+                End If
+                If myTask.Start < myStartDate Then
+                    myStartDate = myD(myTask.Start)
+                End If
+                
+                If myTask.Finish > myEndDate Then
+                    myEndDate = myD(myTask.Finish)
+                End If
+                
             End If
-            If myTask.Start < myStartDate Then
-                myStartDate = myD(myTask.Start)
-            End If
-            
-            If myTask.Finish > myEndDate Then
-                myEndDate = myD(myTask.Finish)
-            End If
-            
+    
         End If
-
-    End If
-    
-    
-Next myTask
+        
+        
+    Next myTask
 
     
     Dim res(0 To 1) As Date
@@ -824,3 +1205,9 @@ Next myTask
     StartAndEnd = res
     
 End Function
+
+Function MonthDiff(myDate1 As Variant, myDate2 As Variant)
+  MonthDiff = DateDiff("m", DateSerial(Year(myDate1), Month(myDate1), 1), DateSerial(Year(myDate2), Month(myDate2), 1))
+End Function
+
+
