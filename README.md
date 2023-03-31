@@ -9,7 +9,7 @@ Instant use. No setup required. 100% MS Project VBA.
   - Tolerant to blank fields
   - Eight-level's row grouping (MS Excel maximum) with different fonts
   - Support unlimited levels of indented tasks in MS Project
-  - Automatically indents subtasks and do grouping
+  - Automatically indents subtasks and does grouping
   - Gantt chart is created at right site of the sheet
 
 **_Using:_**
