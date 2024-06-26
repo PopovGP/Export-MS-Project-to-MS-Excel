@@ -1,7 +1,14 @@
 Attribute VB_Name = "ExportExcel"
-'For the future: Option Explicit
+Option Explicit
+
+Enum prjTimeDimension
+ Monthly = 0
+ Quarterly = 1
+ MonthlyQuarterly = 2
+End Enum
 
 Dim myDepth As Integer
+
 Enum XlLineStyle
      xlContinuous = 1           ' Continuous line.
      xlDash = -4115             ' Dashed line.
@@ -182,7 +189,7 @@ End Sub
    
 Function AutoIndent(Level As Integer) As String
     Dim res As String
-    Dim i As Integer
+    Dim i As Long
         
     res = ""
     
@@ -200,7 +207,7 @@ Sub ExportExcel()
         Exit Sub
     End If
     
-    Dim currentLine As Integer
+    Dim currentLine As Long
     
     Dim myTask As Task
     
@@ -504,6 +511,17 @@ Sub ExportExcel()
     
     currentLine = 4
     
+    Dim excelrange As Object
+    Dim myColor As Long
+    Dim dateOffset As Long
+    Dim myDuration As Long
+    Dim myStartLine As Long
+    Dim myIdent As Long
+    Dim myEndLine As Long
+    
+    
+    
+    
     For Each myTask In ActiveProject.Tasks
         If Not myTask Is Nothing Then
             
@@ -656,6 +674,24 @@ Sub ExportExcel()
 End Sub
                             
 Sub ExportExcel_Monthly()
+
+    ExportExcel_NonStandard myTimeDimension:=Monthly
+
+End Sub
+
+Sub ExportExcel_Quarterly()
+  
+    ExportExcel_NonStandard myTimeDimension:=Quarterly
+
+End Sub
+
+Sub ExportExcel_QuarterlyMonthly()
+  
+    ExportExcel_NonStandard myTimeDimension:=QuarterlyMonthly
+
+End Sub
+                            
+Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
 
 
     If ActiveProject.Tasks.Count = 0 Then
@@ -848,6 +884,19 @@ Sub ExportExcel_Monthly()
 'end close
     
     currentLine = 4
+    Dim excelrange As Object
+    Dim myColor As Long
+    
+    Dim dateOffset As Long
+    Dim myOffsetStart As Long
+    Dim myOffestEnd As Long
+    
+    
+    Dim myDuration As Long
+    Dim myStartLine As Long
+    Dim myIdent As Long
+    Dim myEndLine As Long
+    
     
     For Each myTask In ActiveProject.Tasks
         If Not myTask Is Nothing Then
@@ -900,15 +949,15 @@ Sub ExportExcel_Monthly()
                     'DateDiff("m",  DateSerial(Year(myStartDate), Month(myStartDate), Day(1)), DateSerial(Year(.Start), Month(.Start), Day(1)))
                      
                     
-                    monthOffsetStart = MonthDiff(myStartDate, .Start)
-                    monthOffestEnd = MonthDiff(myStartDate, .Finish)
+                    myOffsetStart = MonthDiff(myStartDate, .Start)
+                    myOffestEnd = MonthDiff(myStartDate, .Finish)
                    ' myDuration = myD(.Finish) - myD(.Start) + 1
                     
                     If .Milestone Then
                         
-                        mySheet.Cells(currentLine, ganttColumn + monthOffsetStart + 1).Value = ChrW(&H25CA)
-                        mySheet.Cells(currentLine, ganttColumn + monthOffsetStart + 1).HorizontalAlignment = XlHAlign.xlHAlignCenter
-                        mySheet.Cells(currentLine, ganttColumn + monthOffsetStart + 1).VerticalAlignment = XlVAlign.xlVAlignCenter
+                        mySheet.Cells(currentLine, ganttColumn + myOffsetStart + 1).Value = ChrW(&H25CA)
+                        mySheet.Cells(currentLine, ganttColumn + myOffsetStart + 1).HorizontalAlignment = XlHAlign.xlHAlignCenter
+                        mySheet.Cells(currentLine, ganttColumn + myOffsetStart + 1).VerticalAlignment = XlVAlign.xlVAlignCenter
                         
                     Else
                         If .OutlineLevel = 1 Then
@@ -927,7 +976,7 @@ Sub ExportExcel_Monthly()
      
     'Dotted line
                        
-                        Call GanttFormat(excelapp, mySheet, mySheet.Cells(currentLine, ganttColumn + monthOffsetStart + 1), mySheet.Cells(currentLine, ganttColumn + monthOffestEnd + 1), myColor)
+                        Call GanttFormat(excelapp, mySheet, mySheet.Cells(currentLine, ganttColumn + myOffsetStart + 1), mySheet.Cells(currentLine, ganttColumn + myOffestEnd + 1), myColor)
                     End If
                
     'end doing Gantt chart ==============================================
@@ -1011,6 +1060,12 @@ Sub myResourceExport(myExcelApp As Object, myWorkbook As Object, myWorksheet As 
     'Dim mySheet As Object       'for early binding: Dim mySheet As Excel.Worksheet
     
     Dim myResourceFields As New Collection
+    Dim myCounter, currentLine  As Long
+    Dim myField As Variant
+    Dim myResource As Resource
+    
+    
+    
     
     myResourceFields.Add Item:=PjField.pjResourceID
     myResourceFields.Add (PjField.pjResourceCode)
@@ -1085,6 +1140,11 @@ Sub myCalendarsExport(myExcelApp As Object, myWorkbook As Object, myWorksheet As
   '{Begin calendars export section   =====================================================================================================================
     Dim myCalendarSheet As Object
     Dim myCalendar As Calendar
+    Dim currentLine, myCounter, i As Long
+    Dim Days As Long
+    Dim myDate As Date
+    
+    
     
     Set myCalendarSheet = myWorkbook.worksheets.Add(, myWorksheet)
     myCalendarSheet.Name = "Calendars"
@@ -1163,6 +1223,8 @@ Function StartAndEnd()
     Dim myStartDate As Date
     Dim myEndDate As Date
     Dim currentLine As Long
+    Dim myTask As Task
+    
     
     currentLine = 1
     
