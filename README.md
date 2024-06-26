@@ -7,7 +7,7 @@ Instant use. No setup required. 100% MS Project VBA.
   - Exports all commonly used fields
   - Automated nice Gantt-chart in Excel with color and border emphasizing
   - Tolerant to blank fields
-  - Eight-level's row grouping (MS Excel maximum) with different fonts
+  - Eight-levels' row grouping (MS Excel maximum) with different fonts
   - Support unlimited levels of indented tasks in MS Project
   - Automatically indents subtasks and does grouping
   - Gantt chart is created at right site of the sheet
