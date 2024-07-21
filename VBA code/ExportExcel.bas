@@ -1,4 +1,5 @@
 Attribute VB_Name = "ExportExcel"
+'@Lang VBA
 Option Explicit
 
 Enum prjTimeDimension

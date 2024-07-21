@@ -1,3 +1,5 @@
+Attribute VB_Name = "debug"
+'@Lang VBA
 
 'For those who wants some extention of this module
 Function DebugEnum(ByRef myArray)
