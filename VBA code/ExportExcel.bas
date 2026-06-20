@@ -332,11 +332,6 @@ Private Sub ExportExcelYMWD()
     Dim isWorkingDay As Boolean
     
     
-    
-    
-    
-    
-    
 'get number of active tasks
     myActiveTaskCount = 0
     For Each myTask In ActiveProject.Tasks
@@ -878,13 +873,13 @@ Private Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
          ElseIf myTimeDimension = prjTimeDimension.Quarterly Then
          
                 If Not startMonth = Month(myDate) Then
-                     startMonth = Month(myDate)
+                    startMonth = Month(myDate)
                     myGanttMonthCount = myGanttMonthCount + 1
                 End If
                 
                 If Not startQuarter = DatePart("q", myDate) Then
                  
-                 mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttQuarterCount), mySheet.Cells(4, ganttColumn + myGanttQuarterCount + 3 - 1)).Select
+                 mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttMonthCount - 1), mySheet.Cells(4, ganttColumn + myGanttQuarterCount)).Select
                  With excelapp.Selection
                      .HorizontalAlignment = XlHAlign.xlHAlignLeft
                      .VerticalAlignment = XlVAlign.xlVAlignCenter
@@ -902,7 +897,7 @@ Private Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
                  
                  
                  startQuarter = DatePart("q", myDate)
-                 myGanttQuarterCount = myGanttQuarterCount + 3
+                 myGanttQuarterCount = myGanttMonthCount
                  
                  
              End If
@@ -934,7 +929,7 @@ Private Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
              
               If Not startQuarter = DatePart("q", myDate) Then
                  
-                 mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttQuarterCount), mySheet.Cells(2, ganttColumn + myGanttQuarterCount + 3 - 1)).Select
+                 mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttMonthCount - 1), mySheet.Cells(2, ganttColumn + myGanttQuarterCount)).Select
                  With excelapp.Selection
                      .HorizontalAlignment = XlHAlign.xlHAlignLeft
                      .VerticalAlignment = XlVAlign.xlVAlignCenter
@@ -952,7 +947,7 @@ Private Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
                  
                  
                  startQuarter = DatePart("q", myDate)
-                 myGanttQuarterCount = myGanttQuarterCount + 3
+                 myGanttQuarterCount = myGanttMonthCount
                  
                  
              End If
@@ -1002,6 +997,7 @@ Private Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
                     .Font.Name = "Times New Roman"
                 End With
                 Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+
             
             ElseIf myTimeDimension = prjTimeDimension.QuarterlyMonthly Then
             
