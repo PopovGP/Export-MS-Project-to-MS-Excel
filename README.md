@@ -17,12 +17,14 @@ Cute output. Instant use. No setup required. 100% MS Project VBA.
 **_Using:_**
   1. Download and open __'Empty_MS_Project_with_macros.mpp'__
   2. Allow Visual Basic macros when asked
+     
       ![Allow macros screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/AllowMacros.png)
   4. Open project file you want to export
   5. While in your project file, choose the __'View'__ tab, click __'Macros'__
   4. Choose __'ExportExcel'__
   5. Click __'Run'__
   6. Choose needed options and/or simply click "Export to MS Excel"
+     
  ![Export to Excel screenshot](https://raw.githubusercontent.com/PopovGP/Export-MS-Project-to-MS-Excel/master/Samples_and_Images/FormScreen.png)
 
 **_Exports task's fields:_**
