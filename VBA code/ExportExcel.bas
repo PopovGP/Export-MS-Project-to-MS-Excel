@@ -1,11 +1,22 @@
-Attribute VB_Name = "ExportExcel"
+'Attribute VB_Name = "ExportExcel"
 '@Lang VBA
 Option Explicit
+
+'For using with parameters form
+Public printVariant As Integer
+Public color0 As Long
+Public color1 As Long
+Public color2 As Long
+Public color3 As Long
+Public color4 As Long
+Public color5 As Long
+Public myCommand As Long
+
 
 Enum prjTimeDimension
  Monthly = 0
  Quarterly = 1
- MonthlyQuarterly = 2
+ QuarterlyMonthly = 2
 End Enum
 
 Dim myDepth As Integer
@@ -208,22 +219,37 @@ Sub ExportExcel()
         Exit Sub
     End If
     
-    Dim currentLine As Long
-    
-    Dim myTask As Task
-    
- 
+    color0 = RGB(223, 227, 232)
+    color1 = RGB(78, 121, 198)
+    color2 = RGB(142, 169, 219)
+    color3 = RGB(180, 198, 231)
+    color4 = RGB(217, 225, 242)
+    color5 = RGB(217, 225, 242)
 
+    myCommand = 0
     
-'late binding
-' Dim Excel As Object
-' Dim workbook As Object
-'
-'Set Excel = CreateObject("Excel.Application")
-'set workbook = excel.
-'Excel.Visible = True
-'Excel.Close
+    ExportParametersForm.Show
     
+    If myCommand = 0 Then
+        Exit Sub
+    End If
+    
+    If myCommand = 1 Then
+        Call ExportExcelYMWD
+    ElseIf myCommand = 2 Then
+        Call ExportExcel_Monthly
+    ElseIf myCommand = 3 Then
+        Call ExportExcel_Quarterly
+    Else
+        Call ExportExcel_QuarterlyMonthly
+    End If
+End Sub
+
+Private Sub ExportExcelYMWD()
+
+    Dim currentLine As Long
+    Dim myTask As Task
+
     'using late binding
     Dim excelapp As Object      'for early binding: Dim excelapp As Excel.Application
     Dim workbook  As Object     'for early binding: Dim workbook As Excel.workbook
@@ -236,7 +262,7 @@ Sub ExportExcel()
     Set excelapp = CreateObject("Excel.Application") 'for early binding: New Excel.Application
     excelapp.ScreenUpdating = False
     Set workbook = excelapp.Workbooks.Add()
-    Set mySheet = workbook.worksheets(1)
+    Set mySheet = workbook.Worksheets(1)
     mySheet.Name = "Gantt"
     ganttColumn = 9         ' <= tune this number if you want to load more columns from ms project. It is an offest column from wich Gantt chart starts
     
@@ -262,7 +288,7 @@ Sub ExportExcel()
     
     
     'headers for tasks table
-    mySheet.Cells(1, 1).Value = "น"
+    mySheet.Cells(1, 1).Value = "ยน"
     mySheet.Cells(1, 2).Value = Application.FieldConstantToFieldName(PjField.pjTaskUniqueID) '"Unique ID"
     mySheet.Cells(1, 3).Value = Application.FieldConstantToFieldName(PjField.pjTaskName) '"Name"
     mySheet.Cells(1, 4).Value = Application.FieldConstantToFieldName(PjField.pjTaskStartText) '"Start"
@@ -275,15 +301,15 @@ Sub ExportExcel()
 
     
 
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 1), mySheet.Cells(4, 1), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 2), mySheet.Cells(4, 2), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 3), mySheet.Cells(4, 3), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 4), mySheet.Cells(4, 4), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 5), mySheet.Cells(4, 5), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 6), mySheet.Cells(4, 6), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 7), mySheet.Cells(4, 7), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 8), mySheet.Cells(4, 8), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 9), mySheet.Cells(4, 9), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 1), mySheet.Cells(4, 1), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 2), mySheet.Cells(4, 2), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 3), mySheet.Cells(4, 3), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 4), mySheet.Cells(4, 4), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 5), mySheet.Cells(4, 5), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 6), mySheet.Cells(4, 6), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 7), mySheet.Cells(4, 7), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 8), mySheet.Cells(4, 8), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 9), mySheet.Cells(4, 9), True, 11, color0)
     
 'some usefull freezing
     mySheet.Activate
@@ -422,7 +448,7 @@ Sub ExportExcel()
         
         If Not isWorkingDay Then
             mySheet.Range(mySheet.Cells(4, ganttColumn + i), mySheet.Cells(4 + myActiveTaskCount, ganttColumn + i)).Select
-            excelapp.Selection.Interior.Color = RGB(223, 227, 232)
+            excelapp.Selection.Interior.Color = color0
         End If
         
         mySheet.Cells(4, ganttColumn + i).Value = Left(WeekdayName(Weekday(myDate, vbUseSystemDayOfWeek), True, vbUseSystemDayOfWeek), 1) 'was myDate
@@ -569,7 +595,7 @@ Sub ExportExcel()
     'start Doing Gantt chart
     '====================================================================
     'tasks
-                    myColor = RGB(217, 225, 242)
+                    'myColor = RGB(217, 225, 242)
                     dateOffset = myD(.Start) - myD(myStartDate)
                     myDuration = myD(.Finish) - myD(.Start) + 1
                     
@@ -583,15 +609,15 @@ Sub ExportExcel()
                         If .OutlineLevel = 1 Then
     '  myColor = RGB(48, 84, 150)
     ' myColor = RGB(66, 96, 162)
-                            myColor = RGB(78, 121, 198)
+                            myColor = color1 'RGB(78, 121, 198)
                         ElseIf .OutlineLevel = 2 Then
-                            myColor = RGB(142, 169, 219)
+                            myColor = color2 'RGB(142, 169, 219)
                         ElseIf .OutlineLevel = 3 Then
-                            myColor = RGB(180, 198, 231)
+                            myColor = color3 'RGB(180, 198, 231)
                         ElseIf .OutlineLevel = 4 Then
-                            myColor = RGB(217, 225, 242)
+                            myColor = color4 'RGB(217, 225, 242)
                         Else
-                            myColor = RGB(217, 225, 242)
+                            myColor = color5 'RGB(217, 225, 242)
                         End If
      
     'Dotted line
@@ -608,7 +634,7 @@ Sub ExportExcel()
         
     Next myTask 'loop through all tasks
                 
-    'Do some grouping =========================================================================================
+    'Do some task grouping =========================================================================================
     currentLine = 4
     For Each myTask In ActiveProject.Tasks
         
@@ -644,7 +670,7 @@ Sub ExportExcel()
             End With
         End If
     Next myTask
-    'end grouping =============================================================================================
+    'end task grouping =============================================================================================
                        
     '{begin do some formatting in columns where Gantt is located on a sheet ======================================
     For i = 1 To ganttColumn
@@ -668,31 +694,36 @@ Sub ExportExcel()
     
     Set mySheet = Nothing
     
-    workbook.worksheets(1).Activate
+    workbook.Worksheets(1).Activate
     excelapp.ScreenUpdating = True
     
                                
 End Sub
                             
-Sub ExportExcel_Monthly()
+Private Sub ExportExcel_Monthly()
 
     ExportExcel_NonStandard myTimeDimension:=Monthly
 
 End Sub
 
-Sub ExportExcel_Quarterly()
+Private Sub ExportExcel_Quarterly()
   
     ExportExcel_NonStandard myTimeDimension:=Quarterly
 
 End Sub
 
-Sub ExportExcel_QuarterlyMonthly()
+Private Sub ExportExcel_QuarterlyMonthly()
   
     ExportExcel_NonStandard myTimeDimension:=QuarterlyMonthly
 
 End Sub
-                            
-Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
+Function GetStartOfQuarter(myDate As Date) As Date
+    Dim startOfQuarter As Date
+   
+    ' Single-line mathematical calculation
+    GetStartOfQuarter = DateSerial(Year(myDate), Int((Month(myDate) - 1) / 3) * 3 + 1, 1)
+End Function
+Private Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
 
 
     If ActiveProject.Tasks.Count = 0 Then
@@ -703,18 +734,6 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
     Dim currentLine As Integer
     
     Dim myTask As Task
-    
- 
-
-    
-'late binding
-' Dim Excel As Object
-' Dim workbook As Object
-'
-'Set Excel = CreateObject("Excel.Application")
-'set workbook = excel.
-'Excel.Visible = True
-'Excel.Close
     
     'using late binding
     Dim excelapp As Object      'for early binding: Dim excelapp As Excel.Application
@@ -728,7 +747,7 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
     Set excelapp = CreateObject("Excel.Application") 'for early binding: New Excel.Application
     excelapp.ScreenUpdating = False
     Set workbook = excelapp.Workbooks.Add()
-    Set mySheet = workbook.worksheets(1)
+    Set mySheet = workbook.Worksheets(1)
     mySheet.Name = "Gantt"
     ganttColumn = 9         ' <= tune this number if you want to load more columns from ms project. It is an offest column from wich Gantt chart starts
     
@@ -754,7 +773,7 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
     
     
     'headers for tasks table
-    mySheet.Cells(1, 1).Value = "น"
+    mySheet.Cells(1, 1).Value = "ยน"
     mySheet.Cells(1, 2).Value = Application.FieldConstantToFieldName(PjField.pjTaskUniqueID) '"Unique ID"
     mySheet.Cells(1, 3).Value = Application.FieldConstantToFieldName(PjField.pjTaskName) '"Name"
     mySheet.Cells(1, 4).Value = Application.FieldConstantToFieldName(PjField.pjTaskStartText) '"Start"
@@ -767,15 +786,15 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
 
     
 
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 1), mySheet.Cells(4, 1), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 2), mySheet.Cells(4, 2), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 3), mySheet.Cells(4, 3), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 4), mySheet.Cells(4, 4), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 5), mySheet.Cells(4, 5), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 6), mySheet.Cells(4, 6), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 7), mySheet.Cells(4, 7), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 8), mySheet.Cells(4, 8), True, 11, RGB(223, 227, 232))
-    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 9), mySheet.Cells(4, 9), True, 11, RGB(223, 227, 232))
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 1), mySheet.Cells(4, 1), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 2), mySheet.Cells(4, 2), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 3), mySheet.Cells(4, 3), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 4), mySheet.Cells(4, 4), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 5), mySheet.Cells(4, 5), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 6), mySheet.Cells(4, 6), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 7), mySheet.Cells(4, 7), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 8), mySheet.Cells(4, 8), True, 11, color0)
+    Call myFormat(excelapp, mySheet, mySheet.Cells(1, 9), mySheet.Cells(4, 9), True, 11, color0)
     
 'some usefull freezing
     mySheet.Activate
@@ -789,13 +808,15 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
     Dim myDate As Date
     Dim myLastDate As Date
     Dim myGanttMonthCount As Long
+    Dim myGanttQuarterCount As Long
     'Dim myGanttYearCount As Long
     'Dim myGanttWeekCount As Long
     Dim myLasti As Long
     Dim startMonth As Integer
+    Dim startQuarter As Integer
     Dim i As Long
-    Dim FirstDayInWeek As Date
-    Dim isWorkingDay As Boolean
+    'Dim FirstDayInWeek As Date
+    'Dim isWorkingDay As Boolean
     
     
     
@@ -816,10 +837,12 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
         
     myDate = myStartDate
     startMonth = Month(myDate)
+    startQuarter = DatePart("q", myDate)
     'startYear = Year(myDate)
     'startWeek = DatePart("ww", myDate, vbUseSystemDayOfWeek)
     
     myGanttMonthCount = 1
+    myGanttQuarterCount = 1
     'myGanttYearCount = 1
     'myGanttWeekCount = 1
     myLasti = 1
@@ -827,42 +850,125 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
         
     For i = 1 To numberOfDays + 1
         
-        If Not startMonth = Month(myDate) Then
-            
-            mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttMonthCount), mySheet.Cells(4, ganttColumn + myGanttMonthCount)).Select
-            With excelapp.Selection
-                .HorizontalAlignment = XlHAlign.xlHAlignLeft
-                .VerticalAlignment = XlVAlign.xlVAlignCenter
-                .WrapText = False
-                .Orientation = 0
-                .AddIndent = False
-                .IndentLevel = 0
-                .ShrinkToFit = False
-                .ReadingOrder = xlContext
-                .MergeCells = True
-                .Value = Format(myDate - 1, "mmmm yyyy")
-                .Font.Name = "Times New Roman"
-            End With
-            Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
-            
-            
-            startMonth = Month(myDate)
-            myGanttMonthCount = myGanttMonthCount + 1
-            
-        End If
-        
-       
-        
-        
-        
-        myLasti = i
-        myLastDate = myDate
-        
-        myDate = myDate + 1
+        If myTimeDimension = prjTimeDimension.Monthly Then
+             If Not startMonth = Month(myDate) Then
+                 
+                 mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttMonthCount), mySheet.Cells(4, ganttColumn + myGanttMonthCount)).Select
+                 With excelapp.Selection
+                     .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                     .VerticalAlignment = XlVAlign.xlVAlignCenter
+                     .WrapText = False
+                     .Orientation = 0
+                     .AddIndent = False
+                     .IndentLevel = 0
+                     .ShrinkToFit = False
+                     .ReadingOrder = xlContext
+                     .MergeCells = True
+                     .Value = Format(myDate - 1, "mmmm yyyy")
+                     .Font.Name = "Times New Roman"
+                 End With
+                 Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+                 
+                 
+                 startMonth = Month(myDate)
+                 myGanttMonthCount = myGanttMonthCount + 1
+                 
+             End If
+             
+         ElseIf myTimeDimension = prjTimeDimension.Quarterly Then
+         
+                If Not startMonth = Month(myDate) Then
+                     startMonth = Month(myDate)
+                    myGanttMonthCount = myGanttMonthCount + 1
+                End If
+                
+                If Not startQuarter = DatePart("q", myDate) Then
+                 
+                 mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttQuarterCount), mySheet.Cells(4, ganttColumn + myGanttQuarterCount + 3 - 1)).Select
+                 With excelapp.Selection
+                     .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                     .VerticalAlignment = XlVAlign.xlVAlignCenter
+                     .WrapText = False
+                     .Orientation = 0
+                     .AddIndent = False
+                     .IndentLevel = 0
+                     .ShrinkToFit = False
+                     .ReadingOrder = xlContext
+                     .MergeCells = True
+                     .Value = Format(GetStartOfQuarter(myDate - 1), "dd mmmm yyyy")
+                     .Font.Name = "Times New Roman"
+                 End With
+                 Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+                 
+                 
+                 startQuarter = DatePart("q", myDate)
+                 myGanttQuarterCount = myGanttQuarterCount + 3
+                 
+                 
+             End If
+             
+         ElseIf myTimeDimension = prjTimeDimension.QuarterlyMonthly Then
+           If Not startMonth = Month(myDate) Then
+                 
+                 mySheet.Range(mySheet.Cells(3, ganttColumn + myGanttMonthCount), mySheet.Cells(4, ganttColumn + myGanttMonthCount)).Select
+                 With excelapp.Selection
+                     .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                     .VerticalAlignment = XlVAlign.xlVAlignCenter
+                     .WrapText = False
+                     .Orientation = 0
+                     .AddIndent = False
+                     .IndentLevel = 0
+                     .ShrinkToFit = False
+                     .ReadingOrder = xlContext
+                     .MergeCells = True
+                     .Value = Format(myDate - 1, "mmmm yyyy")
+                     .Font.Name = "Times New Roman"
+                 End With
+                 Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+                 
+                 
+                 startMonth = Month(myDate)
+                 myGanttMonthCount = myGanttMonthCount + 1
+                 
+             End If
+             
+              If Not startQuarter = DatePart("q", myDate) Then
+                 
+                 mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttQuarterCount), mySheet.Cells(2, ganttColumn + myGanttQuarterCount + 3 - 1)).Select
+                 With excelapp.Selection
+                     .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                     .VerticalAlignment = XlVAlign.xlVAlignCenter
+                     .WrapText = False
+                     .Orientation = 0
+                     .AddIndent = False
+                     .IndentLevel = 0
+                     .ShrinkToFit = False
+                     .ReadingOrder = xlContext
+                     .MergeCells = True
+                     .Value = Format(GetStartOfQuarter(myDate - 1), "dd mmmm yyyy")
+                     .Font.Name = "Times New Roman"
+                 End With
+                 Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+                 
+                 
+                 startQuarter = DatePart("q", myDate)
+                 myGanttQuarterCount = myGanttQuarterCount + 3
+                 
+                 
+             End If
+         
+         End If
+             
+             myLasti = i
+             myLastDate = myDate
+             
+             myDate = myDate + 1
  
-        Next i
+    Next i 'Cycle for each day from start to end
 'close month
     '    If Not myGanttMonthCount = Month(myLastDate) Then
+    
+    If myTimeDimension = prjTimeDimension.Monthly Then
             mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttMonthCount), mySheet.Cells(4, ganttColumn + myGanttMonthCount)).Select
             With excelapp.Selection
                 .HorizontalAlignment = XlHAlign.xlHAlignLeft
@@ -878,6 +984,59 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
                 .Font.Name = "Times New Roman"
             End With
             Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+            
+            ElseIf myTimeDimension = prjTimeDimension.Quarterly Then
+            
+                mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttQuarterCount), mySheet.Cells(4, ganttColumn + myGanttMonthCount)).Select
+                With excelapp.Selection
+                    .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                    .VerticalAlignment = XlVAlign.xlVAlignCenter
+                    .WrapText = False
+                    .Orientation = 0
+                    .AddIndent = False
+                    .IndentLevel = 0
+                    .ShrinkToFit = False
+                    .ReadingOrder = xlContext
+                    .MergeCells = True
+                    .Value = Format(GetStartOfQuarter(myLastDate), "dd mmmm yyyy")
+                    .Font.Name = "Times New Roman"
+                End With
+                Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+            
+            ElseIf myTimeDimension = prjTimeDimension.QuarterlyMonthly Then
+            
+                mySheet.Range(mySheet.Cells(3, ganttColumn + myGanttMonthCount), mySheet.Cells(4, ganttColumn + myGanttMonthCount)).Select
+                With excelapp.Selection
+                    .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                    .VerticalAlignment = XlVAlign.xlVAlignCenter
+                    .WrapText = False
+                    .Orientation = 0
+                    .AddIndent = False
+                    .IndentLevel = 0
+                    .ShrinkToFit = False
+                    .ReadingOrder = xlContext
+                    .MergeCells = True
+                    .Value = Format(myLastDate, "mmmm yyyy")
+                    .Font.Name = "Times New Roman"
+                End With
+                Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+                
+                mySheet.Range(mySheet.Cells(1, ganttColumn + myGanttQuarterCount), mySheet.Cells(2, ganttColumn + myGanttMonthCount)).Select
+                With excelapp.Selection
+                    .HorizontalAlignment = XlHAlign.xlHAlignLeft
+                    .VerticalAlignment = XlVAlign.xlVAlignCenter
+                    .WrapText = False
+                    .Orientation = 0
+                    .AddIndent = False
+                    .IndentLevel = 0
+                    .ShrinkToFit = False
+                    .ReadingOrder = xlContext
+                    .MergeCells = True
+                    .Value = Format(GetStartOfQuarter(myLastDate), "dd mmmm yyyy")
+                    .Font.Name = "Times New Roman"
+                End With
+                Call myBorders(excelapp.Selection, xlContinuous, XlBorderWeight.xlThin)
+            End If
 '        End If
 
 
@@ -945,7 +1104,7 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
     'start doing Gantt chart
     '====================================================================
     'tasks
-                    myColor = RGB(217, 225, 242)
+                  
                     'datediff
                     'DateDiff("m",  DateSerial(Year(myStartDate), Month(myStartDate), Day(1)), DateSerial(Year(.Start), Month(.Start), Day(1)))
                      
@@ -962,17 +1121,15 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
                         
                     Else
                         If .OutlineLevel = 1 Then
-    '  myColor = RGB(48, 84, 150)
-    ' myColor = RGB(66, 96, 162)
-                            myColor = RGB(78, 121, 198)
+                            myColor = color1
                         ElseIf .OutlineLevel = 2 Then
-                            myColor = RGB(142, 169, 219)
+                            myColor = color2
                         ElseIf .OutlineLevel = 3 Then
-                            myColor = RGB(180, 198, 231)
+                            myColor = color3
                         ElseIf .OutlineLevel = 4 Then
-                            myColor = RGB(217, 225, 242)
+                            myColor = color4
                         Else
-                            myColor = RGB(217, 225, 242)
+                            myColor = color5
                         End If
      
     'Dotted line
@@ -1049,7 +1206,7 @@ Sub ExportExcel_NonStandard(myTimeDimension As prjTimeDimension)
     
     Set mySheet = Nothing
     
-    workbook.worksheets(1).Activate
+    workbook.Worksheets(1).Activate
     excelapp.ScreenUpdating = True
     
                                
@@ -1087,7 +1244,7 @@ Sub myResourceExport(myExcelApp As Object, myWorkbook As Object, myWorksheet As 
     myResourceFields.Add (PjField.pjResourceNotes)
 
     Dim myResourceSheet As Object
-    Set myResourceSheet = myWorkbook.worksheets.Add(, myWorksheet)
+    Set myResourceSheet = myWorkbook.Worksheets.Add(, myWorksheet)
     myResourceSheet.Name = "Resources"
     
         
@@ -1138,7 +1295,7 @@ End Sub
 
 'Export calendars
 Sub myCalendarsExport(myExcelApp As Object, myWorkbook As Object, myWorksheet As Variant)
-  '{Begin calendars export section   =====================================================================================================================
+  '{Begin calendars' export section   =====================================================================================================================
     Dim myCalendarSheet As Object
     Dim myCalendar As Calendar
     Dim currentLine, myCounter, i As Long
@@ -1147,7 +1304,7 @@ Sub myCalendarsExport(myExcelApp As Object, myWorkbook As Object, myWorksheet As
     
     
     
-    Set myCalendarSheet = myWorkbook.worksheets.Add(, myWorksheet)
+    Set myCalendarSheet = myWorkbook.Worksheets.Add(, myWorksheet)
     myCalendarSheet.Name = "Calendars"
     
     Set myCalendar = ActiveProject.Calendar
@@ -1213,7 +1370,7 @@ Sub myCalendarsExport(myExcelApp As Object, myWorkbook As Object, myWorksheet As
     Set myCalendarSheet = Nothing
     Set myCalendar = Nothing
     
-    '}End calendars export section   =====================================================================================================================
+    '}End calendars' export section   =====================================================================================================================
   
 End Sub
 
